@@ -52,6 +52,6 @@ if __name__ == '__main__':
     end_date = '2024-12-31'
     data_folder = 'data'
     update_data = False
-    code_list = ['MSFT']
+    code_list = ['0700.HK']
     df_dict = get_hist_data(code_list, start_date, end_date, data_folder, update_data)
-    print(df_dict)
+    print(df_dict['0700.HK'])

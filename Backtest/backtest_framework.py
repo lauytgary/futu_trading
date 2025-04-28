@@ -3,7 +3,7 @@ import sys
 
 from get_lot_size import update_securities_list
 from get_hist_data_yfinance import get_hist_data
-from util_backtest import get_sec_profile
+from util_backtest import get_sec_profile, cal_commission, find_bnh_net_profit_mdd, find_equity_mdd
 import pandas as pd
 
 pd.set_option('display.max_rows', None)
@@ -11,15 +11,15 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
 
-def backtest(df, lot_size, initial_capital):
+def backtest(df, lot_size, initial_capital, market):
     # Initialization 初始化 #
     open_date = datetime.date(1970, 1, 1)
     open_price = 0
     num_of_share = 0
     last_realized_capital = initial_capital
-    pnl = 0
     net_profit = 0
     num_of_trade = 0
+    num_of_win = 0
 
     for i, row in df.iterrows():
         now_date = i.date()
@@ -30,9 +30,12 @@ def backtest(df, lot_size, initial_capital):
 
         now_candle = round(now_close - now_open, 2)
 
+        commission = cal_commission(now_close, num_of_share, market)
+
         # Equity Value #
-        unrealized_pnl = num_of_share * (now_close - open_price)
+        unrealized_pnl = num_of_share * (now_close - open_price) - commission
         equity_value = last_realized_capital + unrealized_pnl
+        df.at[i, 'equity_value'] = equity_value
 
         net_profit = round(equity_value - initial_capital, 2)
 
@@ -63,8 +66,18 @@ def backtest(df, lot_size, initial_capital):
             realized_pnl = unrealized_pnl
             last_realized_capital += realized_pnl
             num_of_trade += 1
+
+            if realized_pnl > 0:
+                num_of_win += 1
             print(now_date, 'close position', realized_pnl)
-    return net_profit, num_of_trade
+
+    # Find win rate
+    if num_of_trade > 0:
+        win_rate = num_of_win / num_of_trade
+    else:
+        win_rate = 0
+
+    return df, net_profit, num_of_trade, win_rate
 
 
 if __name__ == '__main__':
@@ -74,12 +87,23 @@ if __name__ == '__main__':
     data_folder = 'data'
     update_data = False
     code_list = ['0700.HK']
+
     df_dict = get_hist_data(code_list, start_date, end_date, data_folder, update_data)
     update_securities_list(update_data)
 
     for code in code_list:
         stock_name, lot_size, market, initial_capital = get_sec_profile(code, initial_capital)
-        net_profit, num_of_trade = backtest(df_dict[code], lot_size, initial_capital)
+        bnh_net_profit, bnh_mdd, bnh_mdd_pct =  find_bnh_net_profit_mdd(df_dict[code], initial_capital, lot_size)
+
+        df, net_profit, num_of_trade, win_rate = backtest(df_dict[code], lot_size, initial_capital, market)
+
+        mdd, mdd_pct = find_equity_mdd(df)
         print('net profit', net_profit)
         print('number of trade', num_of_trade)
+        print('win_rate', f'{win_rate:.2%}')
+        print('mdd', mdd)
+        print('mdd_pct', f'{mdd_pct:.2%}')
+        print('buy & hold net profit', bnh_net_profit)
+        print('buy & hold mdd', f'{bnh_mdd:.2f}')
+        print('buy & hold mdd pct', f'{bnh_mdd_pct:.2%}')
 
