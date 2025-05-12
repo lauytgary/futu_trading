@@ -1,3 +1,4 @@
+import itertools
 from get_lot_size import get_lot_size
 from get_hist_data_yfinance import get_hist_data
 
@@ -68,19 +69,38 @@ def find_equity_mdd(df):
     return mdd, mdd_pct
 
 
+def get_all_para_combination(para_dict):
+    para_key_list = list(para_dict.keys())
+    para_values_list = list(para_dict.values())
+    para_values_combination_list = list(itertools.product(*para_values_list))
+    print('No. of combinations', len(para_values_combination_list))
+
+    all_para_combination_list = []
+
+    for i in range(len(para_values_combination_list)):
+        single_para_combination_dict = {}
+        para = para_values_combination_list[i]
+        for j in range(len(para)):
+            single_para_combination_dict[para_key_list[j].replace('_list', '')] = para[j]
+
+        all_para_combination_list.append(single_para_combination_dict)
+
+    return all_para_combination_list
+
 
 if __name__ == '__main__':
-    initial_capital = 200000  # hkd
-    start_date = '2024-01-01'
-    end_date = '2024-12-31'
-    data_folder = 'data'
-    update_data = False
-    code_list = ['0700.HK']
-    df_dict = get_hist_data(code_list, start_date, end_date, data_folder, update_data)
+    # initial_capital = 200000  # hkd
+    # start_date = '2024-01-01'
+    # end_date = '2024-12-31'
+    # data_folder = 'data'
+    # update_data = False
+    # code_list = ['0700.HK']
+    # df_dict = get_hist_data(code_list, start_date, end_date, data_folder, update_data)
 
-    bnh_net_profit, bnh_mdd, bnh_mdd_pct = find_bnh_net_profit_mdd(df_dict['0700.HK'], 200000, 100)
-    print(bnh_net_profit)
-    print(bnh_mdd)
-    print(bnh_mdd_pct)
+    para_dict = {'candle_len_list': [5, 10, 15],
+                 'profit_target_pct_list': [4, 8],
+                 'stop_loss_pct_list': [20, 25],
+                 'holding_day_list': [3, 7, 14]}
 
-
+    all_para_combination_list = get_all_para_combination(para_dict)
+    print(all_para_combination_list)
