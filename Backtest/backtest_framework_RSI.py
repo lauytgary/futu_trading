@@ -5,7 +5,7 @@ from get_lot_size import update_securities_list
 from get_hist_data_yfinance import get_hist_data
 from util_backtest import get_sec_profile, cal_commission, find_bnh_net_profit_mdd, find_equity_mdd, get_all_para_combination
 from util_result_metric import initiate_result_dict, record_result
-from ta_backtest import get_candle_len
+from ta_backtest import get_rsi
 import graphplotyt as gp
 import pandas as pd
 
@@ -103,14 +103,14 @@ if __name__ == '__main__':
     end_date = '2024-12-31'
     data_folder = 'data'
     update_data = False
-    code_list = ['3690.HK']
+    code_list = ['0388.HK','3690.HK']
 
     df_dict = get_hist_data(code_list, start_date, end_date, data_folder, update_data)
     update_securities_list(update_data)
 
     #### Strategy Specific ####
-    para_dict = {'candle_direction': ['positive', 'negative'],
-                 'sd_multiple_list': [1.5, 2, 2.5],
+    para_dict = {'rsi_direction_list': ['positive', 'negative'],
+                 'rsi_threshold_list': [20, 30],
                  'profit_target_pct_list': [4, 8],
                  'stop_loss_pct_list': [10, 15],
                  'holding_day_list': [3, 7, 14]}
@@ -123,7 +123,7 @@ if __name__ == '__main__':
         bnh_net_profit, bnh_mdd, bnh_mdd_pct =  find_bnh_net_profit_mdd(df_dict[code], initial_capital, lot_size)
 
         for single_para_combination_dict in all_para_combination_list:
-            df = get_candle_len(df_dict[code], single_para_combination_dict)
+            df = get_rsi(df_dict[code], single_para_combination_dict)
             df, net_profit, num_of_trade, win_rate = backtest(df, lot_size, single_para_combination_dict, initial_capital, market)
 
             mdd, mdd_pct = find_equity_mdd(df)
