@@ -37,8 +37,6 @@ def backtest(df, lot_size, single_para_combination_dict, initial_capital, market
         now_close = row['close']
         trade_logic = row['trade_logic']
 
-        now_candle = round(now_close - now_open, 2)
-
         commission = cal_commission(now_close, num_of_share, market)
 
         # Equity Value #
@@ -102,8 +100,8 @@ if __name__ == '__main__':
     start_date = '2020-01-01'
     end_date = '2024-12-31'
     data_folder = 'data'
-    update_data = True
-    code_list = ['0700.HK','3690.HK']
+    update_data = False
+    code_list = ['0700.HK']
 
     df_dict = get_hist_data(code_list, start_date, end_date, data_folder, update_data)
     update_securities_list(update_data)
