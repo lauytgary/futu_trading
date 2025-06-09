@@ -102,7 +102,7 @@ if __name__ == '__main__':
     start_date = '2020-01-01'
     end_date = '2024-12-31'
     data_folder = 'data'
-    update_data = False
+    update_data = True
     code_list = ['3690.HK']
 
     df_dict = get_hist_data(code_list, start_date, end_date, data_folder, update_data)

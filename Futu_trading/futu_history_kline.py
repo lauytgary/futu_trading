@@ -21,8 +21,8 @@ def get_futu_hist_kline(start_date, end_date, code):
 
 
 if __name__ == '__main__':
-    start_date = '2020-01-01'
-    end_date = '2024-12-31'
+    start_date = '2025-01-01'
+    end_date = '2025-06-02'
     code = 'HK.00941'
 
     df = get_futu_hist_kline(start_date, end_date, code)
