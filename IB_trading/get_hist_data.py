@@ -16,6 +16,10 @@ def get_ib_hist_data(ib, contract, endDateTime, durationStr):
 
     # Convert to pandas DataFrame
     df = util.df(bars)
+    df = df.rename(columns={'date':'datetime'})
+    df['datetime'] = pd.to_datetime(df['datetime'], format='%Y-%m-%d')
+    df = df.set_index('datetime', drop=True)
+
     return df
 
 
