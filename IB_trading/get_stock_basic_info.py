@@ -22,7 +22,7 @@ if __name__ == '__main__':
     ib.connect('127.0.0.1', 7497, clientId=1)
 
     # Create a stock contract object
-    contract = Stock('MSFT', 'SMART', 'USD')
+    contract = Stock('700', 'SEHK', 'HKD')
 
     contract_info_dict = get_shares_per_lot(ib, contract)
     print(contract_info_dict)
