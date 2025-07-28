@@ -69,3 +69,41 @@ def read_trade_status(trade_status_df):
     open_datetime = datetime.strptime(open_datetime_str, '%Y-%m-%d %H:%M:%S')
 
     return qty, cost_price, open_datetime, last_realized_capital, temp_max_equity, num_of_trade, trade_status_dict
+
+
+def get_mdd_out_sample(qty, last_price, cost_price, last_realized_capital, temp_max_equity):
+    # 1. Set realized_pnl to 0
+    realized_pnl = 0
+
+    # 2. Calculate equity_value
+    unrealized_pnl = qty * (last_price - cost_price)
+    equity_value = last_realized_capital + unrealized_pnl
+
+    # 3. Update temp_max_equity if current equity_value is higher
+    if equity_value > temp_max_equity:
+        temp_max_equity = equity_value
+
+    # 4. Calculate mdd_out_sample
+    if temp_max_equity != 0:  # Avoid division by zero
+        mdd_out_sample = (temp_max_equity - equity_value) / temp_max_equity
+    else:
+        mdd_out_sample = 0
+
+    return realized_pnl, unrealized_pnl, equity_value, temp_max_equity, mdd_out_sample
+
+
+def update_trade_status_df(temp_max_equity, equity_value, realized_pnl, unrealized_pnl,
+                           mdd_out_sample, num_of_trade, trade_status_file, trade_status_df):
+
+    # Update the DataFrame with new values
+    trade_status_df.loc[0, 'temp_max_equity'] = temp_max_equity
+    trade_status_df.loc[0, 'equity_value'] = equity_value
+    trade_status_df.loc[0, 'realized_pnl'] = realized_pnl
+    trade_status_df.loc[0, 'unrealized_pnl'] = unrealized_pnl
+    trade_status_df.loc[0, 'mdd_out_sample'] = mdd_out_sample
+    trade_status_df.loc[0, 'num_of_trade'] = num_of_trade
+
+    # Save the updated DataFrame to CSV
+    trade_status_df.to_csv(trade_status_file, index=False)
+
+    return trade_status_df

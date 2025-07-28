@@ -10,7 +10,7 @@ def get_ib_hist_data(ib, contract, endDateTime, durationStr):
         durationStr=durationStr,  # 1 year of data
         barSizeSetting='1 day',  # daily bars
         whatToShow='TRADES',  # trade prices
-        useRTH=True,  # only regular trading hours
+        useRTH=False,  # only regular trading hours
         formatDate=1  # return as pandas DataFrame
     )
 

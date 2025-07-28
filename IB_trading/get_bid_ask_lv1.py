@@ -11,6 +11,7 @@ def get_bid_ask(ib, contract):
                          'bid_size': ticker.bidSize,
                          'ask_price': ticker.ask,
                          'ask_size': ticker.askSize,
+                         'last_price': ticker.last,
                          'volume': ticker.volume}
 
     return bid_ask_info_dict
